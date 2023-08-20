@@ -93,30 +93,30 @@ getData(getWorks);
 //-------------------------- Création, affichage et utilisation des Filtres ----------------------------//
 
 // Crée un bouton pour afficher tous les projets;
-const boutonTous = document.createElement("button");
-boutonTous.innerText = "Tous";
+const buttonAll = document.createElement("button");
+buttonAll.innerText = "Tous";
 // Rattache le bouton à son parent HTML;
-document.getElementById("filtre-categories").appendChild(boutonTous);
+document.getElementById("filtre-categories").appendChild(buttonAll);
 
 // Boucle qui parcourt le tableau des catégories;
 for (let i = 0; i < getCategories.length; i++) {
-  const elFiltreCategories = document.getElementById("filtre-categories");
+  const filter_categorie = document.getElementById("filtre-categories");
 
   const categorie = getCategories[i];
 
   // Crée les boutons filtre en fonction de leur nom;
-  const boutonFiltre = document.createElement("button");
+  const buttonFilter = document.createElement("button");
   // Ajoute le nom de la categorie du backend ainsi que son id
-  boutonFiltre.innerText = categorie.name;
-  boutonFiltre.dataset.catid = categorie.id;
+  buttonFilter.innerText = categorie.name;
+  buttonFilter.dataset.catid = categorie.id;
   // Rattache les boutons filtre à leur parent HTML;
-  elFiltreCategories.appendChild(boutonFiltre);
+  filter_categorie.appendChild(buttonFilter);
 }
 
 // Événement au click pour filtrer les works en fonction de leur catégorie
-let boutonsFiltre = document.querySelectorAll("#filtre-categories button");
-for (let boutonFiltre of boutonsFiltre) {
-  boutonFiltre.addEventListener("click", function () {
+let buttonFilters = document.querySelectorAll("#filtre-categories button");
+for (let buttonFilter of buttonFilters) {
+  buttonFilter.addEventListener("click", function () {
     const thisButton = this;
     const worksFiltres = getWorks.filter(function (workCat) {
       if (!thisButton.dataset.catid) {
