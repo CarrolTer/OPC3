@@ -4,130 +4,80 @@
 
 /*lien de l'API*/
 const url = "http://localhost:5678/api";
+const galleryHtml = document.querySelector("#projets");
 
-// fetch(`${url}/works`)
-//   .then (reponse => {
-//     return reponse.json();
-//   })
-//   .then((works) => {
-//     const sectionGallery = document.querySelector(".gallery");
+let works;
+let categories;
 
-//     works.forEach((work) => {
-//       sectionGallery.innerHTML += `<figure>
-//       <img src="${work.imageUrl}" alt="${work.title}">
-//       <figcaption>${work.title}</figcaption>
-//       </figure>`;
-//     })
-//   });
-
-// fetch(`${url}/categories`)
-//   .then (reponse => {
-//     return reponse.json();
-//   })
-//   .then((categories) => {
-//     // Boucle qui parcourt le tableau des catégories;
-//   for (let i = 0; i < categories.length; i++) {
-//     const elFiltreCategories = document.getElementById("filtre-categories");
-
-//     const categorie = categories[i];
-
-//     // Crée les boutons filtre en fonction de leur nom;
-//     const boutonFiltre = document.createElement("button");
-//     // Ajoute le nom de la categorie du backend ainsi que son id
-//     boutonFiltre.innerText = categorie.name;
-//     boutonFiltre.dataset.catid = categorie.id;
-//     // Rattache les boutons filtre à leur parent HTML;
-//     elFiltreCategories.appendChild(boutonFiltre);
-//   }
-  
-//   })
-
-// Variable qui stockera les travaux, une autre pour les catégories
-let getWorks;
-let getCategories;
-
-// On selectionne la class pour afficher la galerie des travaux
-const galleryHtml = document.querySelector(".gallery");
-
-// Récupère les works de l'API avec une fonction asynchrone
-const works = async function() {
-  try {
-    return (await fetch(`${url}/works`)).json();
-  } catch (error) {
-    alert("Une erreur est survenue, veuillez réessayer ultérieurement", error);
-  }
+const getWorks = async function () {
+    let rep = await fetch(`${url}/works`);
+    return rep.json();
 };
-// Récupère le tableau des works en les stockant dans la variable getWorks
-getWorks = await works();
+works = await getWorks();
 
-// Récupère les catégories de l'API avec une fonction asynchrone
-const categories = async function() {
-  try {
-    return (await fetch(`${url}/categories`)).json();
-  } catch (error) {
-    alert("Une erreur est survenue", error);
-  }
-};
-// Récupère le tableau des catégories en les stockant dans la variable getCategories
-getCategories = await categories();
-
-//------------------------------------------------------------------------------------------//
-//-------------------- Création et affichage de la galerie des projets ---------------------//
-
-const getData = function (getWorks) {
-
-// clean le body, au refresh auto de la page si clique sur filtre
+// Fonction globale genererWorks pour la mise à jour des travaux dans la galerie
+const show_works = function (works) {
   galleryHtml.innerHTML = "";
 
-  // Affichage des works à l'aide d'une boucle
-  for (let work of getWorks) {
+  for (let jsonWork of works) {
     galleryHtml.innerHTML += `<figure>
-      <img src="${work.imageUrl}" alt="${work.title}">
-      <figcaption>${work.title}</figcaption>
+      <img src="${jsonWork.imageUrl}" alt="${jsonWork.title}">
+      <figcaption>${jsonWork.title}</figcaption>
       </figure>`;
+      // console.log(jsonWork.title);
+  
   }
 };
-getData(getWorks);
+show_works(works);
 
-//-----------------------------------------------------------------------------------------//
-//-------------------------- Création, affichage et utilisation des Filtres ----------------------------//
+const getCategories = async function() {
+  const res = await fetch(`${url}/categories`);
+  let data_cat = await res.json();
+  console.log(data_cat);
 
-// Crée un bouton pour afficher tous les projets;
-const buttonAll = document.createElement("button");
-buttonAll.innerText = "Tous";
-// Rattache le bouton à son parent HTML;
-document.getElementById("filtre-categories").appendChild(buttonAll);
+  // Crée un bouton pour afficher tous les projets;
+  const boutonTous = document.createElement("button");
+  boutonTous.innerText = "Tous";
+  // Rattache le bouton à son parent HTML;
+  document.getElementById("filtre-categories").appendChild(boutonTous);
 
-// Boucle qui parcourt le tableau des catégories;
-for (let i = 0; i < getCategories.length; i++) {
-  const filter_categorie = document.getElementById("filtre-categories");
+  // Boucle qui parcourt le tableau des catégories;
+  for (let i = 0; i < data_cat.length; i++) {
+    const elFiltreCategories = document.getElementById("filtre-categories");
 
-  const categorie = getCategories[i];
+    const categorie = data_cat[i];
 
-  // Crée les boutons filtre en fonction de leur nom;
-  const buttonFilter = document.createElement("button");
-  // Ajoute le nom de la categorie du backend ainsi que son id
-  buttonFilter.innerText = categorie.name;
-  buttonFilter.dataset.catid = categorie.id;
-  // Rattache les boutons filtre à leur parent HTML;
-  filter_categorie.appendChild(buttonFilter);
-}
+    // Crée les boutons filtre en fonction de leur nom;
+    const boutonFiltre = document.createElement("button");
+    // Ajoute le nom de la categorie du backend ainsi que son id
+    boutonFiltre.innerText = categorie.name;
+    boutonFiltre.dataset.catid = categorie.id;
+    // Rattache les boutons filtre à leur parent HTML;
+    elFiltreCategories.appendChild(boutonFiltre);
+  }
+
+};
+categories = await getCategories();
 
 // Événement au click pour filtrer les works en fonction de leur catégorie
-let buttonFilters = document.querySelectorAll("#filtre-categories button");
-for (let buttonFilter of buttonFilters) {
-  buttonFilter.addEventListener("click", function () {
+let boutonsFiltre = document.querySelectorAll("#filtre-categories button");
+for (let boutonFiltre of boutonsFiltre) {
+  boutonFiltre.addEventListener("click", function () {
     const thisButton = this;
-    const worksFiltres = getWorks.filter(function (workCat) {
+    console.log(thisButton);
+    const worksFiltres = works.filter(function (workCat) {
+      
       if (!thisButton.dataset.catid) {
         // Si bouton TOUS
         return true; // Garde ce work
       } else if (workCat.category.id == thisButton.dataset.catid) {
         // Si autre bouton : Garde si la cat du Works correspond à la cat du bouton
         return true; // Garde ce work
+      
       }
     });
-    // Appel à la fonction qui régénère les works
-    getData(worksFiltres);
+    console.log(worksFiltres);
+    // Appel à la fonction qui régénère les works (en vidant d'abord le contenu de la galerie pour ensuite n'afficher que les works liés au click)
+    show_works(worksFiltres);
   });
 }
